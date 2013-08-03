@@ -48,7 +48,7 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 			return inerr
 		}
 		if info.IsDir() {
-			if c.skipDir(info.Name()) {
+			if dir != path && c.skipDir(info.Name()) {
 				return filepath.SkipDir
 			}
 
