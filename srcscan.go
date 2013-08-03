@@ -25,7 +25,7 @@ func (c Config) skipDir(name string) bool {
 }
 
 var Default = Config{
-	SkipDirs: []string{"node_modules"},
+	SkipDirs: []string{"node_modules", "vendor"},
 }
 
 // Scan is shorthand for Default.Scan.
