@@ -20,7 +20,19 @@ func TestScan(t *testing.T) {
 				&GoPackage{DirUnit{"testdata/go/cmd/mycmd"}},
 				&GoPackage{DirUnit{"testdata/go/qux"}},
 				&GoPackage{DirUnit{"testdata/go"}},
-				&NodeJSPackage{DirUnit{"testdata/node.js"}},
+				&NodeJSPackage{
+					DirUnit:        DirUnit{Dir: "testdata/node.js"},
+					PackageJSON:    []byte(`{"name": "mypkg"}` + "\n"),
+					LibFiles:       []string{"a.js", "lib/a.js"},
+					TestFiles:      []string{"a_test.js", "test/b.js", "test/c_test.js"},
+					VendorFiles:    []string{"vendor/a.js"},
+					GeneratedFiles: []string{"a.min.js", "dist/a.js"},
+				},
+				&NodeJSPackage{
+					DirUnit:     DirUnit{Dir: "testdata/node.js/subpkg"},
+					PackageJSON: []byte(`{"name": "subpkg"}` + "\n"),
+					LibFiles:    []string{"a.js"},
+				},
 				&PythonPackage{DirUnit{"testdata/python/mypkg"}},
 				&PythonPackage{DirUnit{"testdata/python/mypkg/qux"}},
 			},
@@ -45,6 +57,13 @@ func TestScan(t *testing.T) {
 		sort.Sort(Units(test.units))
 		if !reflect.DeepEqual(test.units, units) {
 			t.Errorf("units:\n%v", pretty.Diff(test.units, units))
+			if len(test.units) == len(units) {
+				for i := range test.units {
+					if !reflect.DeepEqual(test.units[i], units[i]) {
+						t.Errorf("units[%d]:\n%v", i, pretty.Diff(test.units[i], units[i]))
+					}
+				}
+			}
 		}
 	}
 }

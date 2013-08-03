@@ -14,7 +14,7 @@ type Profile struct {
 
 	Dir DirMatcher
 
-	Unit func(path string) Unit
+	Unit func(path string, config Config) Unit
 }
 
 func (p Profile) DirMatches(path string, filenames []string) bool {
@@ -60,21 +60,23 @@ var AllProfiles = []Profile{
 	Profile{
 		Name: "node.js package",
 		Dir:  FileInDir{"package.json"},
-		Unit: func(dir string) Unit {
-			return &NodeJSPackage{DirUnit{dir}}
+		Unit: func(dir string, config Config) Unit {
+			u := &NodeJSPackage{DirUnit: DirUnit{dir}}
+			u.read(config)
+			return u
 		},
 	},
 	Profile{
 		Name: "Python package",
 		Dir:  FileInDir{"__init__.py"},
-		Unit: func(dir string) Unit {
+		Unit: func(dir string, config Config) Unit {
 			return &PythonPackage{DirUnit{dir}}
 		},
 	},
 	Profile{
 		Name: "Go package",
 		Dir:  FileSuffixInDir{".go"},
-		Unit: func(dir string) Unit {
+		Unit: func(dir string, config Config) Unit {
 			return &GoPackage{DirUnit{dir}}
 		},
 	},

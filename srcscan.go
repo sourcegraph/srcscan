@@ -13,6 +13,8 @@ type Config struct {
 
 	// SkipDirs is a list of names of directories that are skipped while scanning.
 	SkipDirs []string
+
+	NodeJSPackage NodeJSPackageConfig
 }
 
 func (c Config) skipDir(name string) bool {
@@ -25,7 +27,18 @@ func (c Config) skipDir(name string) bool {
 }
 
 var Default = Config{
-	SkipDirs: []string{"node_modules", "vendor"},
+	SkipDirs: []string{"node_modules", "vendor", "testdata", "site-packages"},
+	NodeJSPackage: NodeJSPackageConfig{
+		TestDirs:          []string{"test", "tests", "spec", "specs", "unit", "mocha", "karma"},
+		TestSuffixes:      []string{"test.js", "tests.js", "spec.js", "specs.js"},
+		SupportDirs:       []string{"build_support"},
+		SupportFilenames:  []string{"Gruntfile.js", "build.js", "Makefile.dryice.js", "build.config.js"},
+		ExampleDirs:       []string{"example", "examples", "sample", "samples", "doc", "docs", "demo", "demos"},
+		ScriptDirs:        []string{"bin", "script", "scripts", "tool", "tools"},
+		GeneratedDirs:     []string{"build", "dist"},
+		GeneratedSuffixes: []string{".min.js", "-min.js"},
+		VendorDirs:        []string{"vendor", "bower_components", "node_modules", "assets", "public", "static", "resources"},
+	},
 }
 
 // Scan is shorthand for Default.Scan.
@@ -66,7 +79,7 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 			}
 			for _, p := range profiles {
 				if p.Dir != nil && p.Dir.DirMatches(path, filenames) {
-					found = append(found, p.Unit(path))
+					found = append(found, p.Unit(path, c))
 				}
 			}
 		}
