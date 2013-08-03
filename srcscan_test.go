@@ -60,7 +60,7 @@ func TestScan(t *testing.T) {
 			if len(test.units) == len(units) {
 				for i := range test.units {
 					if !reflect.DeepEqual(test.units[i], units[i]) {
-						t.Errorf("units[%d]:\n%v", i, pretty.Diff(test.units[i], units[i]))
+						t.Errorf("units[%d]:\n%v", i, strings.Join(pretty.Diff(test.units[i], units[i]), "\n"))
 					}
 				}
 			}
