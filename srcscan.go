@@ -1,6 +1,7 @@
 package srcscan
 
 import (
+	"go/build"
 	"os"
 	"path/filepath"
 )
@@ -15,6 +16,7 @@ type Config struct {
 	SkipDirs []string
 
 	NodeJSPackage NodeJSPackageConfig
+	GoPackage     GoPackageConfig
 }
 
 func (c Config) skipDir(name string) bool {
@@ -38,6 +40,9 @@ var Default = Config{
 		GeneratedDirs:     []string{"build", "dist"},
 		GeneratedSuffixes: []string{".min.js", "-min.js"},
 		VendorDirs:        []string{"vendor", "bower_components", "node_modules", "assets", "public", "static", "resources"},
+	},
+	GoPackage: GoPackageConfig{
+		BuildContext: build.Default,
 	},
 }
 

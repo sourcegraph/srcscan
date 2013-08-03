@@ -77,7 +77,9 @@ var AllProfiles = []Profile{
 		Name: "Go package",
 		Dir:  FileSuffixInDir{".go"},
 		Unit: func(dir string, config Config) Unit {
-			return &GoPackage{DirUnit{dir}}
+			u := &GoPackage{DirUnit: DirUnit{dir}}
+			u.read(config)
+			return u
 		},
 	},
 }

@@ -3,6 +3,7 @@ package srcscan
 import (
 	"encoding/json"
 	"fmt"
+	"go/build"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -113,6 +114,25 @@ func (u *NodeJSPackage) read(config Config) {
 // GoPackage represents a Go package.
 type GoPackage struct {
 	DirUnit
+	build.Package
+}
+
+type GoPackageConfig struct {
+	BuildContext build.Context
+}
+
+func (u *GoPackage) read(config Config) {
+	c := config.GoPackage
+	pkg, err := c.BuildContext.ImportDir(u.DirUnit.Dir, 0)
+	if err != nil {
+		panic("import Go package: " + err.Error())
+	}
+
+	// Throw away the ImportPos information because it is unlikely to be valuable and requires extra
+	// work for test expectations.
+	pkg.ImportPos, pkg.TestImportPos, pkg.XTestImportPos = nil, nil, nil
+
+	u.Package = *pkg
 }
 
 // PythonPackage represents a Python package.

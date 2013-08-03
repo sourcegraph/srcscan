@@ -2,8 +2,10 @@ package srcscan
 
 import (
 	"github.com/kr/pretty"
+	"go/build"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 )
 
@@ -17,9 +19,57 @@ func TestScan(t *testing.T) {
 		{
 			dir: "testdata",
 			units: []Unit{
-				&GoPackage{DirUnit{"testdata/go/cmd/mycmd"}},
-				&GoPackage{DirUnit{"testdata/go/qux"}},
-				&GoPackage{DirUnit{"testdata/go"}},
+				&GoPackage{
+					DirUnit: DirUnit{Dir: "testdata/go"},
+					Package: build.Package{
+						Dir:            "testdata/go",
+						Name:           "mypkg",
+						ImportPath:     ".",
+						GoFiles:        []string{"a.go", "b.go"},
+						Imports:        []string{},
+						ImportPos:      nil,
+						TestGoFiles:    []string{"a_test.go"},
+						TestImports:    []string{},
+						TestImportPos:  nil,
+						XTestGoFiles:   []string{"b_test.go"},
+						XTestImports:   []string{},
+						XTestImportPos: nil,
+					},
+				},
+				&GoPackage{
+					DirUnit: DirUnit{Dir: "testdata/go/cmd/mycmd"},
+					Package: build.Package{
+						Dir:            "testdata/go/cmd/mycmd",
+						Name:           "main",
+						ImportPath:     ".",
+						GoFiles:        []string{"mycmd.go"},
+						Imports:        []string{},
+						ImportPos:      nil,
+						TestGoFiles:    nil,
+						TestImports:    []string{},
+						TestImportPos:  nil,
+						XTestGoFiles:   nil,
+						XTestImports:   []string{},
+						XTestImportPos: nil,
+					},
+				},
+				&GoPackage{
+					DirUnit: DirUnit{Dir: "testdata/go/qux"},
+					Package: build.Package{
+						Dir:            "testdata/go/qux",
+						Name:           "qux",
+						ImportPath:     ".",
+						GoFiles:        []string{"qux.go"},
+						Imports:        []string{},
+						ImportPos:      nil,
+						TestGoFiles:    nil,
+						TestImports:    []string{},
+						TestImportPos:  nil,
+						XTestGoFiles:   nil,
+						XTestImports:   []string{},
+						XTestImportPos: nil,
+					},
+				},
 				&NodeJSPackage{
 					DirUnit:        DirUnit{Dir: "testdata/node.js"},
 					PackageJSON:    []byte(`{"name": "mypkg"}` + "\n"),
