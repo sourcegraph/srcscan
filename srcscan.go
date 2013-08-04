@@ -15,6 +15,10 @@ type Config struct {
 	// SkipDirs is a list of names of directories that are skipped while scanning.
 	SkipDirs []string
 
+	// PathIndependent, if true, indicates that all filesystem paths should be relativized, if
+	// possible, or else cleared.
+	PathIndependent bool
+
 	NodeJSPackage NodeJSPackageConfig
 	GoPackage     GoPackageConfig
 }

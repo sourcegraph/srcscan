@@ -10,6 +10,7 @@ import (
 )
 
 func TestScan(t *testing.T) {
+	Default.PathIndependent = true
 	type scanTest struct {
 		config *Config
 		dir    string
@@ -24,7 +25,7 @@ func TestScan(t *testing.T) {
 					Package: build.Package{
 						Dir:            "testdata/go",
 						Name:           "mypkg",
-						ImportPath:     ".",
+						ImportPath:     "github.com/sourcegraph/srcscan/testdata/go",
 						GoFiles:        []string{"a.go", "b.go"},
 						Imports:        []string{},
 						ImportPos:      nil,
@@ -41,7 +42,7 @@ func TestScan(t *testing.T) {
 					Package: build.Package{
 						Dir:            "testdata/go/cmd/mycmd",
 						Name:           "main",
-						ImportPath:     ".",
+						ImportPath:     "github.com/sourcegraph/srcscan/testdata/go/cmd/mycmd",
 						GoFiles:        []string{"mycmd.go"},
 						Imports:        []string{},
 						ImportPos:      nil,
@@ -58,7 +59,7 @@ func TestScan(t *testing.T) {
 					Package: build.Package{
 						Dir:            "testdata/go/qux",
 						Name:           "qux",
-						ImportPath:     ".",
+						ImportPath:     "github.com/sourcegraph/srcscan/testdata/go/qux",
 						GoFiles:        []string{"qux.go"},
 						Imports:        []string{},
 						ImportPos:      nil,

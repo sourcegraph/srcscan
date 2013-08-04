@@ -34,3 +34,27 @@ func dirHasFile(dir, filename string) bool {
 	}
 	panic("dirHasFile: " + err.Error())
 }
+
+func hasSubdir(root, dir string) (rel string, ok bool) {
+	if p, err := filepath.EvalSymlinks(root); err == nil {
+		root = p
+	}
+	if p, err := filepath.EvalSymlinks(dir); err == nil {
+		dir = p
+	}
+	const sep = string(filepath.Separator)
+	root = filepath.Clean(root)
+	if !strings.HasSuffix(root, sep) {
+		root += sep
+	}
+	dir = filepath.Clean(dir)
+	if !strings.HasPrefix(dir, root) {
+		return "", false
+	}
+	return filepath.ToSlash(dir[len(root):]), true
+}
+
+func isDir(path string) bool {
+	fi, err := os.Stat(path)
+	return err == nil && fi.IsDir()
+}

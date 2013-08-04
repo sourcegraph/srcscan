@@ -24,6 +24,16 @@ func (d DirUnit) Path() string {
 	return d.Dir
 }
 
+// AbsPath returns the absolute path to this source unit's directory.
+func (d DirUnit) AbsPath() (path string) {
+	var err error
+	path, err = filepath.Abs(d.Path())
+	if err != nil {
+		panic("AbsPath " + d.Path() + ": " + err.Error())
+	}
+	return
+}
+
 // Units implements sort.Interface.
 type Units []Unit
 
@@ -128,9 +138,35 @@ func (u *GoPackage) read(config Config) {
 		panic("import Go package: " + err.Error())
 	}
 
+	// Try to determine the import path for the package. (Adapted from go/build.)
+	srcdirs := c.BuildContext.SrcDirs()
+	for i, root := range srcdirs {
+		if sub, ok := hasSubdir(root, u.AbsPath()); ok {
+			// We found a potential import path for dir,
+			// but check that using it wouldn't find something
+			// else first.
+			for _, earlyRoot := range srcdirs[:i] {
+				if dir := filepath.Join(earlyRoot, "src", sub); isDir(dir) {
+					goto Found
+				}
+			}
+
+			// sub would not name some other directory instead of this one.
+			// Record it.
+			pkg.ImportPath = sub
+			pkg.Root = filepath.Dir(root) // without trailing "/src"
+			goto Found
+		}
+	}
+Found:
+
 	// Throw away the ImportPos information because it is unlikely to be valuable and requires extra
 	// work for test expectations.
 	pkg.ImportPos, pkg.TestImportPos, pkg.XTestImportPos = nil, nil, nil
+
+	if config.PathIndependent {
+		pkg.Root = ""
+	}
 
 	u.Package = *pkg
 }
