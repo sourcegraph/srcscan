@@ -73,7 +73,7 @@ func TestScan(t *testing.T) {
 				},
 				&NodeJSPackage{
 					DirUnit:        DirUnit{Dir: "testdata/node.js"},
-					PackageJSON:    []byte(`{"name": "mypkg"}` + "\n"),
+					PackageJSON:    []byte(`{"name":"mypkg"}`),
 					LibFiles:       []string{"a.js", "lib/a.js"},
 					TestFiles:      []string{"a_test.js", "test/b.js", "test/c_test.js"},
 					VendorFiles:    []string{"vendor/a.js"},
@@ -81,7 +81,7 @@ func TestScan(t *testing.T) {
 				},
 				&NodeJSPackage{
 					DirUnit:     DirUnit{Dir: "testdata/node.js/subpkg"},
-					PackageJSON: []byte(`{"name": "subpkg"}` + "\n"),
+					PackageJSON: []byte(`{"name":"subpkg"}`),
 					LibFiles:    []string{"a.js"},
 				},
 				&PythonPackage{DirUnit{"testdata/python/mypkg"}},
