@@ -197,7 +197,7 @@ type PythonPackage struct {
 }
 
 type MarshalableUnit struct {
-	Unit
+	Unit Unit
 }
 
 func (mu *MarshalableUnit) MarshalJSON() (data []byte, err error) {
