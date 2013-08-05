@@ -7,12 +7,17 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 )
 
 // Unit represents a "source unit," such as a Go package, a node.js package, or a Python package.
 type Unit interface {
 	Path() string
+}
+
+func UnitType(unit Unit) string {
+	return reflect.TypeOf(unit).Elem().Name()
 }
 
 type DirUnit struct {

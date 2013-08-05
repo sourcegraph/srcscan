@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/sourcegraph/srcscan"
 	"os"
-	"reflect"
 )
 
 var verbose = flag.Bool("v", false, "show verbose output")
@@ -34,7 +33,7 @@ func main() {
 			os.Exit(1)
 		}
 		for j, unit := range units {
-			fmt.Printf("%-15s %s\n", typeName(unit), unit.Path())
+			fmt.Printf("%-15s %s\n", srcscan.UnitType(unit), unit.Path())
 			if *verbose {
 				out, err := json.MarshalIndent(unit, "    ", "  ")
 				if err != nil {
@@ -48,8 +47,4 @@ func main() {
 			}
 		}
 	}
-}
-
-func typeName(v interface{}) string {
-	return reflect.TypeOf(v).Elem().Name()
 }
