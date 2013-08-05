@@ -1,6 +1,7 @@
 package srcscan
 
 import (
+	"go/build"
 	"strings"
 )
 
@@ -77,7 +78,7 @@ var AllProfiles = []Profile{
 		Name: "Go package",
 		Dir:  FileSuffixInDir{".go"},
 		Unit: func(dir string, config Config) Unit {
-			u := &GoPackage{DirUnit: DirUnit{dir}}
+			u := &GoPackage{Package: build.Package{Dir: dir}}
 			u.read(config)
 			return u
 		},

@@ -2,6 +2,7 @@ package srcscan
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/build"
 	"io/ioutil"
@@ -128,7 +129,6 @@ func (u *NodeJSPackage) read(config Config) {
 
 // GoPackage represents a Go package.
 type GoPackage struct {
-	DirUnit
 	build.Package
 }
 
@@ -136,9 +136,24 @@ type GoPackageConfig struct {
 	BuildContext build.Context
 }
 
+// Path implements Unit.
+func (u *GoPackage) Path() string {
+	return u.Dir
+}
+
+// AbsPath returns the absolute path to this source unit's directory.
+func (u *GoPackage) AbsPath() (path string) {
+	var err error
+	path, err = filepath.Abs(u.Path())
+	if err != nil {
+		panic("AbsPath " + u.Path() + ": " + err.Error())
+	}
+	return
+}
+
 func (u *GoPackage) read(config Config) {
 	c := config.GoPackage
-	pkg, err := c.BuildContext.ImportDir(u.DirUnit.Dir, 0)
+	pkg, err := c.BuildContext.ImportDir(u.Dir, 0)
 	if err != nil {
 		panic("import Go package: " + err.Error())
 	}
@@ -179,4 +194,22 @@ Found:
 // PythonPackage represents a Python package.
 type PythonPackage struct {
 	DirUnit
+}
+
+// UnmarshalJSON attempts to unmarshal JSON data into a new source unit struct of type unitType.
+func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
+	switch unitType {
+	case "NodeJSPackage":
+		unit = &NodeJSPackage{}
+	case "GoPackage":
+		unit = &GoPackage{}
+	case "PythonPackage":
+		unit = &PythonPackage{}
+	default:
+		err = errors.New("unhandled source unit type: " + unitType)
+	}
+	if err == nil {
+		err = json.Unmarshal(data, &unit)
+	}
+	return
 }

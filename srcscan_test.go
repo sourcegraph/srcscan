@@ -21,7 +21,6 @@ func TestScan(t *testing.T) {
 			dir: "testdata",
 			units: []Unit{
 				&GoPackage{
-					DirUnit: DirUnit{Dir: "testdata/go"},
 					Package: build.Package{
 						Dir:            "testdata/go",
 						Name:           "mypkg",
@@ -38,7 +37,6 @@ func TestScan(t *testing.T) {
 					},
 				},
 				&GoPackage{
-					DirUnit: DirUnit{Dir: "testdata/go/cmd/mycmd"},
 					Package: build.Package{
 						Dir:            "testdata/go/cmd/mycmd",
 						Name:           "main",
@@ -55,7 +53,6 @@ func TestScan(t *testing.T) {
 					},
 				},
 				&GoPackage{
-					DirUnit: DirUnit{Dir: "testdata/go/qux"},
 					Package: build.Package{
 						Dir:            "testdata/go/qux",
 						Name:           "qux",
