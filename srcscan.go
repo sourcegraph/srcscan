@@ -35,7 +35,7 @@ func (c Config) skipDir(name string) bool {
 var Default = Config{
 	SkipDirs: []string{"node_modules", "vendor", "testdata", "site-packages"},
 	NodeJSPackage: NodeJSPackageConfig{
-		TestDirs:          []string{"test", "tests", "spec", "specs", "unit", "mocha", "karma"},
+		TestDirs:          []string{"test", "tests", "spec", "specs", "unit", "mocha", "karma", "testdata"},
 		TestSuffixes:      []string{"test.js", "tests.js", "spec.js", "specs.js"},
 		SupportDirs:       []string{"build_support"},
 		SupportFilenames:  []string{"Gruntfile.js", "build.js", "Makefile.dryice.js", "build.config.js"},
