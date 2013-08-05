@@ -196,6 +196,35 @@ type PythonPackage struct {
 	DirUnit
 }
 
+type MarshalableUnit struct {
+	Unit
+}
+
+func (mu *MarshalableUnit) MarshalJSON() (data []byte, err error) {
+	type unitWithType struct {
+		Unit
+		Type string
+	}
+	uwt := unitWithType{mu.Unit, UnitType(mu.Unit)}
+	return json.Marshal(uwt)
+}
+
+func (mu *MarshalableUnit) UnmarshalJSON(data []byte) (err error) {
+	type unitWithType struct {
+		Unit json.RawMessage
+		Type string
+	}
+	var uwt unitWithType
+	err = json.Unmarshal(data, &uwt)
+	if err == nil {
+		mu.Unit, err = UnmarshalJSON(uwt.Unit, uwt.Type)
+	}
+	return
+}
+
+var _ json.Marshaler = &MarshalableUnit{}
+var _ json.Unmarshaler = &MarshalableUnit{}
+
 // UnmarshalJSON attempts to unmarshal JSON data into a new source unit struct of type unitType.
 func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 	switch unitType {
