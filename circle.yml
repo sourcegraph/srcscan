@@ -1,0 +1,14 @@
+checkout:
+  post:
+    - rm -rf ~/.go_workspace/src/github.com/sourcegraph
+    - mkdir -p ~/.go_workspace/src/github.com/sourcegraph
+    - cp -R ~/srcscan ~/.go_workspace/src/github.com/sourcegraph/srcscan
+
+dependencies:
+  override:
+    - go get -d -v github.com/sourcegraph/srcscan/...
+    - go build -v github.com/sourcegraph/srcscan/...
+
+test:
+  override:
+    - go test -v github.com/sourcegraph/srcscan/...
