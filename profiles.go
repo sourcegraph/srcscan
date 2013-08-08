@@ -62,7 +62,7 @@ var AllProfiles = []Profile{
 		Name: "node.js package",
 		Dir:  FileInDir{"package.json"},
 		Unit: func(dir string, config Config) Unit {
-			u := &NodeJSPackage{DirUnit: DirUnit{dir}}
+			u := &NodeJSPackage{Dir: dir}
 			u.read(config)
 			return u
 		},
@@ -71,7 +71,7 @@ var AllProfiles = []Profile{
 		Name: "Python package",
 		Dir:  FileInDir{"__init__.py"},
 		Unit: func(dir string, config Config) Unit {
-			return &PythonPackage{DirUnit{dir}}
+			return &PythonPackage{dir}
 		},
 	},
 	Profile{

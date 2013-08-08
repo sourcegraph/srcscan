@@ -14,30 +14,13 @@ import (
 
 // Unit represents a "source unit," such as a Go package, a node.js package, or a Python package.
 type Unit interface {
+	// Path is the path to this source unit (which is either a directory or file), relative to the
+	// scanned directory.
 	Path() string
 }
 
 func UnitType(unit Unit) string {
 	return reflect.TypeOf(unit).Elem().Name()
-}
-
-type DirUnit struct {
-	Dir string
-}
-
-// Path implements Unit.
-func (d DirUnit) Path() string {
-	return d.Dir
-}
-
-// AbsPath returns the absolute path to this source unit's directory.
-func (d DirUnit) AbsPath() (path string) {
-	var err error
-	path, err = filepath.Abs(d.Path())
-	if err != nil {
-		panic("AbsPath " + d.Path() + ": " + err.Error())
-	}
-	return
 }
 
 // Units implements sort.Interface.
@@ -51,7 +34,7 @@ func (u Units) Less(i, j int) bool {
 
 // NodeJSPackage represents a node.js package.
 type NodeJSPackage struct {
-	DirUnit
+	Dir            string
 	PackageJSON    json.RawMessage `json:",omitempty"`
 	LibFiles       []string        `json:",omitempty"`
 	ScriptFiles    []string        `json:",omitempty"`
@@ -60,6 +43,10 @@ type NodeJSPackage struct {
 	TestFiles      []string        `json:",omitempty"`
 	VendorFiles    []string        `json:",omitempty"`
 	GeneratedFiles []string        `json:",omitempty"`
+}
+
+func (u *NodeJSPackage) Path() string {
+	return u.Dir
 }
 
 type NodeJSPackageConfig struct {
@@ -141,8 +128,8 @@ func (u *GoPackage) Path() string {
 	return u.Dir
 }
 
-// AbsPath returns the absolute path to this source unit's directory.
-func (u *GoPackage) AbsPath() (path string) {
+// absPath returns the absolute path to this source unit's directory.
+func (u *GoPackage) absPath() (path string) {
 	var err error
 	path, err = filepath.Abs(u.Path())
 	if err != nil {
@@ -161,7 +148,7 @@ func (u *GoPackage) read(config Config) {
 	// Try to determine the import path for the package. (Adapted from go/build.)
 	srcdirs := c.BuildContext.SrcDirs()
 	for i, root := range srcdirs {
-		if sub, ok := hasSubdir(root, u.AbsPath()); ok {
+		if sub, ok := hasSubdir(root, u.absPath()); ok {
 			// We found a potential import path for dir,
 			// but check that using it wouldn't find something
 			// else first.
@@ -193,7 +180,11 @@ Found:
 
 // PythonPackage represents a Python package.
 type PythonPackage struct {
-	DirUnit
+	Dir string
+}
+
+func (u *PythonPackage) Path() string {
+	return u.Dir
 }
 
 type MarshalableUnit struct {
@@ -242,3 +233,7 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 	}
 	return
 }
+
+// Compile-time interface implementation checks.
+
+var _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}
