@@ -8,6 +8,11 @@ import (
 
 // Config specifies options for Scan.
 type Config struct {
+	// Base is the base directory that all source unit paths are made relative to. Paths within the
+	// concrete source unit structs are relative to the source unit path, not Base. If Base is the
+	// empty string, the current working directory is used.
+	Base string
+
 	// Profiles is the list of profiles to use when scanning for source units. If nil,
 	// AllProfiles is used.
 	Profiles []Profile
@@ -65,6 +70,8 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 		profiles = AllProfiles
 	}
 
+	c.Base, _ = filepath.Abs(c.Base)
+
 	err = filepath.Walk(dir, func(path string, info os.FileInfo, inerr error) (err error) {
 		if inerr != nil {
 			return inerr
@@ -88,7 +95,13 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 			}
 			for _, p := range profiles {
 				if p.Dir != nil && p.Dir.DirMatches(path, filenames) {
-					found = append(found, p.Unit(path, c))
+					abspath, _ := filepath.Abs(path)
+					var relpath string
+					relpath, err = filepath.Rel(c.Base, abspath)
+					if err != nil {
+						panic(err.Error())
+					}
+					found = append(found, p.Unit(abspath, relpath, c))
 				}
 			}
 		}

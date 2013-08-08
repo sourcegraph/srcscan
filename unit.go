@@ -62,21 +62,21 @@ type NodeJSPackageConfig struct {
 	VendorDirs        []string
 }
 
-func readNodeJSPackage(dir string, config Config) Unit {
-	u := &NodeJSPackage{Dir: dir}
+func readNodeJSPackage(absdir, reldir string, config Config) Unit {
+	u := &NodeJSPackage{Dir: reldir}
 
 	// Read package.json.
 	var err error
-	u.PackageJSON, err = ioutil.ReadFile(filepath.Join(dir, "package.json"))
+	u.PackageJSON, err = ioutil.ReadFile(filepath.Join(absdir, "package.json"))
 	if err != nil {
 		panic("read package.json: " + err.Error())
 	}
 
 	// Populate *Files fields.
 	c := config.NodeJSPackage
-	err = filepath.Walk(dir, func(path string, info os.FileInfo, inerr error) (err error) {
+	err = filepath.Walk(absdir, func(path string, info os.FileInfo, inerr error) (err error) {
 		if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".js") {
-			relpath, _ := filepath.Rel(dir, path)
+			relpath, _ := filepath.Rel(absdir, path)
 			parts := strings.Split(relpath, "/")
 			for _, part := range parts {
 				if contains(c.VendorDirs, part) {
@@ -106,7 +106,7 @@ func readNodeJSPackage(dir string, config Config) Unit {
 			}
 
 			// Don't traverse into sub-packages.
-			if path != dir && dirHasFile(path, "package.json") {
+			if path != absdir && dirHasFile(path, "package.json") {
 				return filepath.SkipDir
 			}
 		}
@@ -132,16 +132,15 @@ func (u *GoPackage) Path() string {
 	return u.Dir
 }
 
-func readGoPackage(dir string, config Config) Unit {
+func readGoPackage(absdir, reldir string, config Config) Unit {
 	u := &GoPackage{}
 	c := config.GoPackage
-	pkg, err := c.BuildContext.ImportDir(dir, 0)
+	pkg, err := c.BuildContext.ImportDir(absdir, 0)
 	if err != nil {
 		panic("import Go package: " + err.Error())
 	}
 
 	// Try to determine the import path for the package. (Adapted from go/build.)
-	absdir, _ := filepath.Abs(dir)
 	srcdirs := c.BuildContext.SrcDirs()
 	for i, root := range srcdirs {
 		if sub, ok := hasSubdir(root, absdir); ok {
@@ -168,10 +167,11 @@ Found:
 	pkg.ImportPos, pkg.TestImportPos, pkg.XTestImportPos = nil, nil, nil
 
 	if config.PathIndependent {
-		pkg.Root = ""
+		pkg.Root, pkg.SrcRoot, pkg.PkgRoot, pkg.BinDir = "", "", "", ""
 	}
 
 	u.Package = *pkg
+	u.Package.Dir = reldir
 	return u
 }
 

@@ -11,6 +11,7 @@ import (
 
 func TestScan(t *testing.T) {
 	Default.PathIndependent = true
+	Default.Base = "testdata"
 	type scanTest struct {
 		config *Config
 		dir    string
@@ -22,7 +23,7 @@ func TestScan(t *testing.T) {
 			units: []Unit{
 				&GoPackage{
 					Package: build.Package{
-						Dir:            "testdata/go",
+						Dir:            "go",
 						Name:           "mypkg",
 						ImportPath:     "github.com/sourcegraph/srcscan/testdata/go",
 						GoFiles:        []string{"a.go", "b.go"},
@@ -38,7 +39,7 @@ func TestScan(t *testing.T) {
 				},
 				&GoPackage{
 					Package: build.Package{
-						Dir:            "testdata/go/cmd/mycmd",
+						Dir:            "go/cmd/mycmd",
 						Name:           "main",
 						ImportPath:     "github.com/sourcegraph/srcscan/testdata/go/cmd/mycmd",
 						GoFiles:        []string{"mycmd.go"},
@@ -54,7 +55,7 @@ func TestScan(t *testing.T) {
 				},
 				&GoPackage{
 					Package: build.Package{
-						Dir:            "testdata/go/qux",
+						Dir:            "go/qux",
 						Name:           "qux",
 						ImportPath:     "github.com/sourcegraph/srcscan/testdata/go/qux",
 						GoFiles:        []string{"qux.go"},
@@ -69,7 +70,7 @@ func TestScan(t *testing.T) {
 					},
 				},
 				&NodeJSPackage{
-					Dir:            "testdata/node.js",
+					Dir:            "node.js",
 					PackageJSON:    []byte(`{"name":"mypkg"}`),
 					LibFiles:       []string{"a.js", "lib/a.js"},
 					TestFiles:      []string{"a_test.js", "test/b.js", "test/c_test.js"},
@@ -77,12 +78,12 @@ func TestScan(t *testing.T) {
 					GeneratedFiles: []string{"a.min.js", "dist/a.js"},
 				},
 				&NodeJSPackage{
-					Dir:         "testdata/node.js/subpkg",
+					Dir:         "node.js/subpkg",
 					PackageJSON: []byte(`{"name":"subpkg"}`),
 					LibFiles:    []string{"a.js"},
 				},
-				&PythonPackage{"testdata/python/mypkg"},
-				&PythonPackage{"testdata/python/mypkg/qux"},
+				&PythonPackage{"python/mypkg"},
+				&PythonPackage{"python/mypkg/qux"},
 			},
 		},
 	}
