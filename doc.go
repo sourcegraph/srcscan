@@ -1,4 +1,4 @@
-// Package src scans directory trees for source code packages.
+// Package srcscan scans directory trees for source code packages.
 package srcscan
 
 // test imports
