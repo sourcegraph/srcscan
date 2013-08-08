@@ -45,6 +45,7 @@ type NodeJSPackage struct {
 	GeneratedFiles []string        `json:",omitempty"`
 }
 
+// Path returns the directory containing the package.json file.
 func (u *NodeJSPackage) Path() string {
 	return u.Dir
 }
@@ -61,19 +62,21 @@ type NodeJSPackageConfig struct {
 	VendorDirs        []string
 }
 
-func (u *NodeJSPackage) read(config Config) {
+func readNodeJSPackage(dir string, config Config) Unit {
+	u := &NodeJSPackage{Dir: dir}
+
 	// Read package.json.
 	var err error
-	u.PackageJSON, err = ioutil.ReadFile(filepath.Join(u.Dir, "package.json"))
+	u.PackageJSON, err = ioutil.ReadFile(filepath.Join(dir, "package.json"))
 	if err != nil {
 		panic("read package.json: " + err.Error())
 	}
 
 	// Populate *Files fields.
 	c := config.NodeJSPackage
-	err = filepath.Walk(u.Dir, func(path string, info os.FileInfo, inerr error) (err error) {
+	err = filepath.Walk(dir, func(path string, info os.FileInfo, inerr error) (err error) {
 		if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".js") {
-			relpath, _ := filepath.Rel(u.Dir, path)
+			relpath, _ := filepath.Rel(dir, path)
 			parts := strings.Split(relpath, "/")
 			for _, part := range parts {
 				if contains(c.VendorDirs, part) {
@@ -103,7 +106,7 @@ func (u *NodeJSPackage) read(config Config) {
 			}
 
 			// Don't traverse into sub-packages.
-			if path != u.Dir && dirHasFile(path, "package.json") {
+			if path != dir && dirHasFile(path, "package.json") {
 				return filepath.SkipDir
 			}
 		}
@@ -112,6 +115,7 @@ func (u *NodeJSPackage) read(config Config) {
 	if err != nil {
 		panic("scan files: " + err.Error())
 	}
+	return u
 }
 
 // GoPackage represents a Go package.
@@ -123,37 +127,29 @@ type GoPackageConfig struct {
 	BuildContext build.Context
 }
 
-// Path implements Unit.
+// Path returns the directory that immediately contains the Go package.
 func (u *GoPackage) Path() string {
 	return u.Dir
 }
 
-// absPath returns the absolute path to this source unit's directory.
-func (u *GoPackage) absPath() (path string) {
-	var err error
-	path, err = filepath.Abs(u.Path())
-	if err != nil {
-		panic("AbsPath " + u.Path() + ": " + err.Error())
-	}
-	return
-}
-
-func (u *GoPackage) read(config Config) {
+func readGoPackage(dir string, config Config) Unit {
+	u := &GoPackage{}
 	c := config.GoPackage
-	pkg, err := c.BuildContext.ImportDir(u.Dir, 0)
+	pkg, err := c.BuildContext.ImportDir(dir, 0)
 	if err != nil {
 		panic("import Go package: " + err.Error())
 	}
 
 	// Try to determine the import path for the package. (Adapted from go/build.)
+	absdir, _ := filepath.Abs(dir)
 	srcdirs := c.BuildContext.SrcDirs()
 	for i, root := range srcdirs {
-		if sub, ok := hasSubdir(root, u.absPath()); ok {
+		if sub, ok := hasSubdir(root, absdir); ok {
 			// We found a potential import path for dir,
 			// but check that using it wouldn't find something
 			// else first.
 			for _, earlyRoot := range srcdirs[:i] {
-				if dir := filepath.Join(earlyRoot, "src", sub); isDir(dir) {
+				if subsrcdir := filepath.Join(earlyRoot, "src", sub); isDir(subsrcdir) {
 					goto Found
 				}
 			}
@@ -176,6 +172,7 @@ Found:
 	}
 
 	u.Package = *pkg
+	return u
 }
 
 // PythonPackage represents a Python package.
@@ -183,6 +180,7 @@ type PythonPackage struct {
 	Dir string
 }
 
+// Path returns the directory immediately containing the Python package.
 func (u *PythonPackage) Path() string {
 	return u.Dir
 }

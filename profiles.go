@@ -1,7 +1,6 @@
 package srcscan
 
 import (
-	"go/build"
 	"strings"
 )
 
@@ -61,11 +60,7 @@ var AllProfiles = []Profile{
 	Profile{
 		Name: "node.js package",
 		Dir:  FileInDir{"package.json"},
-		Unit: func(dir string, config Config) Unit {
-			u := &NodeJSPackage{Dir: dir}
-			u.read(config)
-			return u
-		},
+		Unit: readNodeJSPackage,
 	},
 	Profile{
 		Name: "Python package",
@@ -77,10 +72,6 @@ var AllProfiles = []Profile{
 	Profile{
 		Name: "Go package",
 		Dir:  FileSuffixInDir{".go"},
-		Unit: func(dir string, config Config) Unit {
-			u := &GoPackage{Package: build.Package{Dir: dir}}
-			u.read(config)
-			return u
-		},
+		Unit: readGoPackage,
 	},
 }
