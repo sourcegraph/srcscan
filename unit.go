@@ -62,7 +62,7 @@ type NodeJSPackageConfig struct {
 	VendorDirs        []string
 }
 
-func readNodeJSPackage(absdir, reldir string, config Config) Unit {
+func readNodeJSPackage(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	u := &NodeJSPackage{Dir: reldir}
 
 	// Read package.json.
@@ -132,7 +132,7 @@ func (u *GoPackage) Path() string {
 	return u.Dir
 }
 
-func readGoPackage(absdir, reldir string, config Config) Unit {
+func readGoPackage(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	u := &GoPackage{}
 	c := config.GoPackage
 	pkg, err := c.BuildContext.ImportDir(absdir, 0)
@@ -185,6 +185,15 @@ func (u *PythonPackage) Path() string {
 	return u.Dir
 }
 
+// PythonPackage represents a Python package.
+type PythonModule struct {
+	File string
+}
+
+func (u *PythonModule) Path() string {
+	return u.File
+}
+
 type MarshalableUnit struct {
 	Unit Unit
 }
@@ -223,6 +232,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 		unit = &GoPackage{}
 	case "PythonPackage":
 		unit = &PythonPackage{}
+	case "PythonModule":
+		unit = &PythonModule{}
 	default:
 		err = errors.New("unhandled source unit type: " + unitType)
 	}
@@ -234,4 +245,4 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 
 // Compile-time interface implementation checks.
 
-var _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}
+var _, _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}

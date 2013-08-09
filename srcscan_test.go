@@ -3,6 +3,7 @@ package srcscan
 import (
 	"github.com/kr/pretty"
 	"go/build"
+	"os"
 	"reflect"
 	"sort"
 	"strings"
@@ -82,6 +83,36 @@ func TestScan(t *testing.T) {
 					PackageJSON: []byte(`{"name":"subpkg"}`),
 					LibFiles:    []string{"a.js"},
 				},
+				&PythonModule{"python/myscript.py"},
+				&PythonPackage{"python/mypkg"},
+			},
+		},
+		{
+			config: &Config{
+				PathIndependent: true,
+				Base:            "testdata",
+				Profiles: []Profile{
+					{
+						Name:         "Python package",
+						TopLevelOnly: false,
+						Dir:          FileInDir{"__init__.py"},
+						File:         FileHasSuffix{".py"},
+						Unit: func(abspath, relpath string, config Config, info os.FileInfo) Unit {
+							if info.IsDir() {
+								return &PythonPackage{relpath}
+							} else {
+								return &PythonModule{relpath}
+							}
+						},
+					},
+				},
+			},
+			dir: "testdata/python",
+			units: []Unit{
+				&PythonModule{"python/mypkg/__init__.py"},
+				&PythonModule{"python/mypkg/a.py"},
+				&PythonModule{"python/mypkg/qux/__init__.py"},
+				&PythonModule{"python/myscript.py"},
 				&PythonPackage{"python/mypkg"},
 				&PythonPackage{"python/mypkg/qux"},
 			},

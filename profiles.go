@@ -1,6 +1,7 @@
 package srcscan
 
 import (
+	"os"
 	"strings"
 )
 
@@ -14,7 +15,11 @@ type Profile struct {
 
 	Dir DirMatcher
 
-	Unit func(abspath, relpath string, config Config) Unit
+	File FileMatcher
+
+	TopLevelOnly bool
+
+	Unit func(abspath, relpath string, config Config, info os.FileInfo) Unit
 }
 
 func (p Profile) DirMatches(path string, filenames []string) bool {
@@ -56,6 +61,12 @@ func (c FileSuffixInDir) DirMatches(path string, filenames []string) bool {
 	return false
 }
 
+type FileHasSuffix struct{ Suffix string }
+
+func (c FileHasSuffix) FileMatches(path string) bool {
+	return strings.HasSuffix(path, c.Suffix)
+}
+
 var AllProfiles = []Profile{
 	Profile{
 		Name: "node.js package",
@@ -63,10 +74,16 @@ var AllProfiles = []Profile{
 		Unit: readNodeJSPackage,
 	},
 	Profile{
-		Name: "Python package",
-		Dir:  FileInDir{"__init__.py"},
-		Unit: func(absdir, reldir string, config Config) Unit {
-			return &PythonPackage{reldir}
+		Name:         "Python package and module",
+		TopLevelOnly: true,
+		Dir:          FileInDir{"__init__.py"},
+		File:         FileHasSuffix{".py"},
+		Unit: func(abspath, relpath string, config Config, info os.FileInfo) Unit {
+			if info.IsDir() {
+				return &PythonPackage{relpath}
+			} else {
+				return &PythonModule{relpath}
+			}
 		},
 	},
 	Profile{

@@ -72,41 +72,58 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 
 	c.Base, _ = filepath.Abs(c.Base)
 
-	err = filepath.Walk(dir, func(path string, info os.FileInfo, inerr error) (err error) {
-		if inerr != nil {
-			return inerr
-		}
-		if info.IsDir() {
-			if dir != path && c.skipDir(info.Name()) {
-				return filepath.SkipDir
+	for _, profile := range profiles {
+		err = filepath.Walk(dir, func(path string, info os.FileInfo, inerr error) (err error) {
+			if inerr != nil {
+				return inerr
 			}
+			if info.IsDir() {
+				if dir != path && c.skipDir(info.Name()) {
+					return filepath.SkipDir
+				}
 
-			var dirh *os.File
-			dirh, err = os.Open(path)
-			if err != nil {
-				return
-			}
-			defer dirh.Close()
+				var dirh *os.File
+				dirh, err = os.Open(path)
+				if err != nil {
+					return
+				}
+				defer dirh.Close()
 
-			var filenames []string
-			filenames, err = dirh.Readdirnames(0)
-			if err != nil {
-				return
-			}
-			for _, p := range profiles {
-				if p.Dir != nil && p.Dir.DirMatches(path, filenames) {
-					abspath, _ := filepath.Abs(path)
-					var relpath string
-					relpath, err = filepath.Rel(c.Base, abspath)
-					if err != nil {
-						panic(err.Error())
+				var filenames []string
+				filenames, err = dirh.Readdirnames(0)
+				if err != nil {
+					return
+				}
+
+				if profile.Dir != nil && profile.Dir.DirMatches(path, filenames) {
+					relpath, abspath := c.relAbsPath(path)
+					found = append(found, profile.Unit(abspath, relpath, c, info))
+					if profile.TopLevelOnly {
+						return filepath.SkipDir
 					}
-					found = append(found, p.Unit(abspath, relpath, c))
+				}
+			} else {
+				if profile.File != nil && profile.File.FileMatches(path) {
+					relpath, abspath := c.relAbsPath(path)
+					found = append(found, profile.Unit(abspath, relpath, c, info))
 				}
 			}
-		}
-		return
-	})
+			return
+		})
+	}
 
+	return
+}
+
+func (c Config) relAbsPath(path string) (rel string, abs string) {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	rel, err = filepath.Rel(c.Base, abs)
+	if err != nil {
+		panic(err.Error())
+	}
 	return
 }
