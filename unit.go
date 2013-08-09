@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"go/build"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -137,7 +138,7 @@ func readGoPackage(absdir, reldir string, config Config, info os.FileInfo) Unit 
 	c := config.GoPackage
 	pkg, err := c.BuildContext.ImportDir(absdir, 0)
 	if err != nil {
-		panic("import Go package: " + err.Error())
+		log.Printf("Warning: error encountered while importing Go package at %s: %s", absdir, err)
 	}
 
 	// Try to determine the import path for the package. (Adapted from go/build.)
