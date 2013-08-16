@@ -47,7 +47,7 @@ var Default = Config{
 		ExampleDirs:       []string{"example", "examples", "sample", "samples", "doc", "docs", "demo", "demos"},
 		ScriptDirs:        []string{"bin", "script", "scripts", "tool", "tools"},
 		GeneratedDirs:     []string{"build", "dist"},
-		GeneratedSuffixes: []string{".min.js", "-min.js"},
+		GeneratedSuffixes: []string{".min.js", "-min.js", ".optimized.js", "-optimized.js"},
 		VendorDirs:        []string{"vendor", "bower_components", "node_modules", "assets", "public", "static", "resources"},
 	},
 	GoPackage: GoPackageConfig{
