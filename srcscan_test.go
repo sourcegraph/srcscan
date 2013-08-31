@@ -70,6 +70,12 @@ func TestScan(t *testing.T) {
 						XTestImportPos: nil,
 					},
 				},
+				&JavaProject{
+					Dir:              "java-maven",
+					ProjectClasspath: "target/classes",
+					SrcFiles:         []string{"src/main/java/foo/Foo.java"},
+					TestFiles:        []string{"src/test/java/bar/Bar.java"},
+				},
 				&NodeJSPackage{
 					Dir:            "node.js",
 					PackageJSON:    []byte(`{"name":"mypkg"}`),

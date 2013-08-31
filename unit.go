@@ -195,6 +195,53 @@ func (u *PythonModule) Path() string {
 	return u.File
 }
 
+// JavaProject represents a Java project.
+type JavaProject struct {
+	Dir              string
+	ProjectClasspath string
+	SrcFiles         []string
+	TestFiles        []string
+}
+
+// Path returns the directory that immediately contains the Maven pom.xml.
+func (u *JavaProject) Path() string {
+	return u.Dir
+}
+
+func readJavaMavenProject(absdir, reldir string, config Config, info os.FileInfo) Unit {
+	u := &JavaProject{
+		Dir:              reldir,
+		ProjectClasspath: "target/classes",
+	}
+	srcdir, testdir := "src/main/java", "src/test/java"
+
+	var collectJavaFiles = func(basedir string) (files []string, err error) {
+		err = filepath.Walk(basedir, func(path string, info os.FileInfo, inerr error) (err error) {
+			if inerr != nil {
+				return
+			}
+			if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".java") {
+				relpath, _ := filepath.Rel(absdir, path)
+				files = append(files, relpath)
+			}
+			return
+		})
+		return
+	}
+
+	var err error
+	u.SrcFiles, err = collectJavaFiles(filepath.Join(absdir, srcdir))
+	if err != nil {
+		panic("scan SrcFiles: " + err.Error())
+	}
+	u.TestFiles, err = collectJavaFiles(filepath.Join(absdir, testdir))
+	if err != nil {
+		panic("scan TestFiles: " + err.Error())
+	}
+
+	return u
+}
+
 type MarshalableUnit struct {
 	Unit Unit
 }
@@ -235,6 +282,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 		unit = &PythonPackage{}
 	case "PythonModule":
 		unit = &PythonModule{}
+	case "JavaProject":
+		unit = &JavaProject{}
 	default:
 		err = errors.New("unhandled source unit type: " + unitType)
 	}
@@ -246,4 +295,4 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 
 // Compile-time interface implementation checks.
 
-var _, _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}
+var _, _, _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &JavaProject{}

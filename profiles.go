@@ -91,4 +91,9 @@ var AllProfiles = []Profile{
 		Dir:  FileSuffixInDir{".go"},
 		Unit: readGoPackage,
 	},
+	Profile{
+		Name: "Java Maven project",
+		Dir:  FileInDir{"pom.xml"},
+		Unit: readJavaMavenProject,
+	},
 }
