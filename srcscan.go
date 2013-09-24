@@ -38,7 +38,7 @@ func (c Config) skipDir(name string) bool {
 }
 
 var Default = Config{
-	SkipDirs: []string{"node_modules", "vendor", "testdata", "site-packages"},
+	SkipDirs: []string{"node_modules", "vendor", "testdata", "site-packages", "bower_components"},
 	NodeJSPackage: NodeJSPackageConfig{
 		TestDirs:          []string{"test", "tests", "spec", "specs", "unit", "mocha", "karma", "testdata"},
 		TestSuffixes:      []string{"test.js", "tests.js", "spec.js", "specs.js"},
