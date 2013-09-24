@@ -81,7 +81,7 @@ func TestScan(t *testing.T) {
 					PackageJSON:    []byte(`{"name":"mypkg"}`),
 					LibFiles:       []string{"a.js", "lib/a.js"},
 					TestFiles:      []string{"a_test.js", "test/b.js", "test/c_test.js"},
-					VendorFiles:    []string{"vendor/a.js"},
+					VendorFiles:    []string{"example/bower_components/foo/foo.js", "vendor/a.js"},
 					GeneratedFiles: []string{"a.min.js", "dist/a.js"},
 				},
 				&NodeJSPackage{

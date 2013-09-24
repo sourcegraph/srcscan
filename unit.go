@@ -79,6 +79,8 @@ func readNodeJSPackage(absdir, reldir string, config Config, info os.FileInfo) U
 		if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".js") {
 			relpath, _ := filepath.Rel(absdir, path)
 			parts := strings.Split(relpath, "/")
+			// Prioritize detection of vendored and generated files, marking
+			// them as such even if they are in an example dir.
 			for _, part := range parts {
 				if contains(c.VendorDirs, part) {
 					u.VendorFiles = append(u.VendorFiles, relpath)
@@ -86,7 +88,10 @@ func readNodeJSPackage(absdir, reldir string, config Config, info os.FileInfo) U
 				} else if contains(c.GeneratedDirs, part) || hasAnySuffix(c.GeneratedSuffixes, relpath) {
 					u.GeneratedFiles = append(u.GeneratedFiles, relpath)
 					return
-				} else if contains(c.ScriptDirs, part) {
+				}
+			}
+			for _, part := range parts {
+				if contains(c.ScriptDirs, part) {
 					u.ScriptFiles = append(u.ScriptFiles, relpath)
 					return
 				} else if contains(c.ExampleDirs, part) {
