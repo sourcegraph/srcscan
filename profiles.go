@@ -96,4 +96,10 @@ var AllProfiles = []Profile{
 		Dir:  FileInDir{"pom.xml"},
 		Unit: readJavaMavenProject,
 	},
+	Profile{
+		Name: "Ruby Gem",
+		Dir:  FileSuffixInDir{".gemspec"},
+		Unit: readRubyGem,
+	},
+	// TODO(sqs): support Ruby apps (i.e., non-gem Ruby projects)
 }

@@ -200,6 +200,63 @@ func (u *PythonModule) Path() string {
 	return u.File
 }
 
+type RubyConfig struct {
+	TestDirs             []string
+	TestFilenamePatterns []string
+	VendorDirs           []string
+}
+
+// RubyGem represents a Ruby Gem.
+type RubyGem struct {
+	Dir       string
+	SrcFiles  []string
+	TestFiles []string
+}
+
+// Path returns the Ruby Gem's root directory (which contains the *.gemspec file).
+func (u *RubyGem) Path() string {
+	return u.Dir
+}
+
+func readRubyGem(absdir, reldir string, config Config, info os.FileInfo) Unit {
+	gem := RubyGem{Dir: reldir}
+
+	var collectRubyFiles = func(basedir string) (files []string, err error) {
+		err = filepath.Walk(basedir, func(path string, info os.FileInfo, inerr error) (err error) {
+			if inerr != nil {
+				return
+			}
+			if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".rb") {
+				relpath, _ := filepath.Rel(absdir, path)
+				files = append(files, relpath)
+			}
+			return
+		})
+		return
+	}
+
+	var err error
+	// TODO(sqs): read from gemspec files directive
+	if dir := filepath.Join(absdir, "lib"); isDir(dir) {
+		gem.SrcFiles, err = collectRubyFiles(dir)
+		if err != nil {
+			panic("scan SrcFiles: " + err.Error())
+		}
+	}
+
+	for _, testdir := range config.Ruby.TestDirs {
+		if dir := filepath.Join(absdir, testdir); isDir(dir) {
+			files, err := collectRubyFiles(dir)
+			if err != nil {
+				panic("scan TestFiles: " + err.Error())
+			}
+			gem.TestFiles = append(gem.TestFiles, files...)
+		}
+	}
+
+	return &gem
+}
+
 // JavaProject represents a Java project.
 type JavaProject struct {
 	Dir              string
@@ -287,6 +344,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 		unit = &PythonPackage{}
 	case "PythonModule":
 		unit = &PythonModule{}
+	case "RubyGem":
+		unit = &RubyGem{}
 	case "JavaProject":
 		unit = &JavaProject{}
 	default:
@@ -300,4 +359,4 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 
 // Compile-time interface implementation checks.
 
-var _, _, _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &JavaProject{}
+var _, _, _, _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}

@@ -26,6 +26,7 @@ type Config struct {
 
 	NodeJSPackage NodeJSPackageConfig
 	GoPackage     GoPackageConfig
+	Ruby          RubyConfig
 }
 
 func (c Config) skipDir(name string) bool {
@@ -52,6 +53,9 @@ var Default = Config{
 	},
 	GoPackage: GoPackageConfig{
 		BuildContext: build.Default,
+	},
+	Ruby: RubyConfig{
+		TestDirs: []string{"spec", "specs", "test", "tests"},
 	},
 }
 
