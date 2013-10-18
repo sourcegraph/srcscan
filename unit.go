@@ -204,6 +204,7 @@ type RubyConfig struct {
 	TestDirs             []string
 	TestFilenamePatterns []string
 	VendorDirs           []string
+	GemSrcDirs           []string
 	AppSrcDirs           []string
 }
 
@@ -236,12 +237,13 @@ func collectRubyFiles(absdir, basedir string) (files []string, err error) {
 func readRubyGem(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	gem := RubyGem{Dir: reldir}
 
-	var err error
-	// TODO(sqs): read from gemspec files directive
-	if dir := filepath.Join(absdir, "lib"); isDir(dir) {
-		gem.SrcFiles, err = collectRubyFiles(absdir, dir)
-		if err != nil {
-			panic("scan SrcFiles: " + err.Error())
+	for _, srcdir := range config.Ruby.GemSrcDirs {
+		if dir := filepath.Join(absdir, srcdir); isDir(dir) {
+			files, err := collectRubyFiles(absdir, dir)
+			if err != nil {
+				panic("scan SrcFiles: " + err.Error())
+			}
+			gem.SrcFiles = append(gem.SrcFiles, files...)
 		}
 	}
 
@@ -273,13 +275,13 @@ func (u *RubyApp) Path() string {
 func readRubyApp(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	app := RubyApp{Dir: reldir}
 
-	var err error
 	for _, srcdir := range config.Ruby.AppSrcDirs {
 		if dir := filepath.Join(absdir, srcdir); isDir(dir) {
-			app.SrcFiles, err = collectRubyFiles(absdir, dir)
+			files, err := collectRubyFiles(absdir, dir)
 			if err != nil {
 				panic("scan SrcFiles: " + err.Error())
 			}
+			app.SrcFiles = append(app.SrcFiles, files...)
 		}
 	}
 

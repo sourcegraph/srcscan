@@ -56,6 +56,7 @@ var Default = Config{
 	},
 	Ruby: RubyConfig{
 		TestDirs:   []string{"spec", "specs", "test", "tests"},
+		GemSrcDirs: []string{"lib"},
 		AppSrcDirs: []string{"app", "lib", "config", "db"},
 	},
 }
