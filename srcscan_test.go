@@ -91,6 +91,11 @@ func TestScan(t *testing.T) {
 				},
 				&PythonModule{"python/myscript.py"},
 				&PythonPackage{"python/mypkg"},
+				&RubyApp{
+					Dir:       "ruby/sample_app",
+					SrcFiles:  []string{"app/app.rb"},
+					TestFiles: nil,
+				},
 				&RubyGem{
 					Dir:       "ruby/sample_gem",
 					SrcFiles:  []string{"lib/sample_ruby_gem.rb"},

@@ -55,7 +55,8 @@ var Default = Config{
 		BuildContext: build.Default,
 	},
 	Ruby: RubyConfig{
-		TestDirs: []string{"spec", "specs", "test", "tests"},
+		TestDirs:   []string{"spec", "specs", "test", "tests"},
+		AppSrcDirs: []string{"app", "lib", "config", "db"},
 	},
 }
 

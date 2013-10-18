@@ -204,6 +204,7 @@ type RubyConfig struct {
 	TestDirs             []string
 	TestFilenamePatterns []string
 	VendorDirs           []string
+	AppSrcDirs           []string
 }
 
 // RubyGem represents a Ruby Gem.
@@ -218,27 +219,27 @@ func (u *RubyGem) Path() string {
 	return u.Dir
 }
 
+func collectRubyFiles(absdir, basedir string) (files []string, err error) {
+	err = filepath.Walk(basedir, func(path string, info os.FileInfo, inerr error) (err error) {
+		if inerr != nil {
+			return
+		}
+		if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".rb") {
+			relpath, _ := filepath.Rel(absdir, path)
+			files = append(files, relpath)
+		}
+		return
+	})
+	return
+}
+
 func readRubyGem(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	gem := RubyGem{Dir: reldir}
-
-	var collectRubyFiles = func(basedir string) (files []string, err error) {
-		err = filepath.Walk(basedir, func(path string, info os.FileInfo, inerr error) (err error) {
-			if inerr != nil {
-				return
-			}
-			if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".rb") {
-				relpath, _ := filepath.Rel(absdir, path)
-				files = append(files, relpath)
-			}
-			return
-		})
-		return
-	}
 
 	var err error
 	// TODO(sqs): read from gemspec files directive
 	if dir := filepath.Join(absdir, "lib"); isDir(dir) {
-		gem.SrcFiles, err = collectRubyFiles(dir)
+		gem.SrcFiles, err = collectRubyFiles(absdir, dir)
 		if err != nil {
 			panic("scan SrcFiles: " + err.Error())
 		}
@@ -246,7 +247,7 @@ func readRubyGem(absdir, reldir string, config Config, info os.FileInfo) Unit {
 
 	for _, testdir := range config.Ruby.TestDirs {
 		if dir := filepath.Join(absdir, testdir); isDir(dir) {
-			files, err := collectRubyFiles(dir)
+			files, err := collectRubyFiles(absdir, dir)
 			if err != nil {
 				panic("scan TestFiles: " + err.Error())
 			}
@@ -255,6 +256,44 @@ func readRubyGem(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	}
 
 	return &gem
+}
+
+// RubyApp represents a Ruby App.
+type RubyApp struct {
+	Dir       string
+	SrcFiles  []string
+	TestFiles []string
+}
+
+// Path returns the Ruby App's root directory (which contains the *.appspec file).
+func (u *RubyApp) Path() string {
+	return u.Dir
+}
+
+func readRubyApp(absdir, reldir string, config Config, info os.FileInfo) Unit {
+	app := RubyApp{Dir: reldir}
+
+	var err error
+	for _, srcdir := range config.Ruby.AppSrcDirs {
+		if dir := filepath.Join(absdir, srcdir); isDir(dir) {
+			app.SrcFiles, err = collectRubyFiles(absdir, dir)
+			if err != nil {
+				panic("scan SrcFiles: " + err.Error())
+			}
+		}
+	}
+
+	for _, testdir := range config.Ruby.TestDirs {
+		if dir := filepath.Join(absdir, testdir); isDir(dir) {
+			files, err := collectRubyFiles(absdir, dir)
+			if err != nil {
+				panic("scan TestFiles: " + err.Error())
+			}
+			app.TestFiles = append(app.TestFiles, files...)
+		}
+	}
+
+	return &app
 }
 
 // JavaProject represents a Java project.
@@ -344,6 +383,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 		unit = &PythonPackage{}
 	case "PythonModule":
 		unit = &PythonModule{}
+	case "RubyApp":
+		unit = &RubyApp{}
 	case "RubyGem":
 		unit = &RubyGem{}
 	case "JavaProject":

@@ -101,5 +101,10 @@ var AllProfiles = []Profile{
 		Dir:  FileSuffixInDir{".gemspec"},
 		Unit: readRubyGem,
 	},
+	Profile{
+		Name: "Ruby app",
+		Dir:  FileInDir{"Gemfile.lock"},
+		Unit: readRubyApp,
+	},
 	// TODO(sqs): support Ruby apps (i.e., non-gem Ruby projects)
 }
