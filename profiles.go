@@ -103,7 +103,7 @@ var AllProfiles = []Profile{
 	},
 	Profile{
 		Name: "Ruby app",
-		Dir:  FileInDir{"Gemfile.lock"},
+		Dir:  FileInDir{"config.ru"},
 		Unit: readRubyApp,
 	},
 	// TODO(sqs): support Ruby apps (i.e., non-gem Ruby projects)
