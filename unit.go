@@ -210,9 +210,11 @@ type RubyConfig struct {
 
 // RubyGem represents a Ruby Gem.
 type RubyGem struct {
-	Dir       string
-	SrcFiles  []string
-	TestFiles []string
+	Dir         string
+	Name        string
+	GemSpecFile string
+	SrcFiles    []string
+	TestFiles   []string
 }
 
 // Path returns the Ruby Gem's root directory (which contains the *.gemspec file).
@@ -236,6 +238,25 @@ func collectRubyFiles(absdir, basedir string) (files []string, err error) {
 
 func readRubyGem(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	gem := RubyGem{Dir: reldir}
+
+	dirh, err := os.Open(absdir)
+	if err != nil {
+		panic("Open " + absdir + ": " + err.Error())
+	}
+	defer dirh.Close()
+	filenames, err := dirh.Readdirnames(0)
+	if err != nil {
+		panic("Readdirnames " + absdir + ": " + err.Error())
+	}
+	for _, filename := range filenames {
+		if strings.HasSuffix(filename, ".gemspec") {
+			gem.GemSpecFile = filename
+			gem.Name = strings.TrimSuffix(filename, ".gemspec")
+		}
+	}
+	if gem.GemSpecFile == "" {
+		panic("No .gemspec found in " + absdir)
+	}
 
 	for _, srcdir := range config.Ruby.GemSrcDirs {
 		if dir := filepath.Join(absdir, srcdir); isDir(dir) {
