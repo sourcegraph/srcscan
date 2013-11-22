@@ -49,7 +49,7 @@ var Default = Config{
 		ScriptDirs:        []string{"bin", "script", "scripts", "tool", "tools"},
 		GeneratedDirs:     []string{"build", "dist"},
 		GeneratedSuffixes: []string{".min.js", "-min.js", ".optimized.js", "-optimized.js"},
-		VendorDirs:        []string{"vendor", "bower_components", "node_modules", "assets", "public", "static", "resources"},
+		VendorDirs:        []string{"vendor", "bower_components", "node_modules", "assets", "public", "static", "resources", "dep", "deps"},
 	},
 	GoPackage: GoPackageConfig{
 		BuildContext: build.Default,
