@@ -22,6 +22,10 @@ func TestScan(t *testing.T) {
 		{
 			dir: "testdata",
 			units: []Unit{
+				&BowerComponent{
+					Dir:       "bower",
+					BowerJSON: []byte(`{"name":"foo","dependencies":{"baz":"1.0.0"}}`),
+				},
 				&GoPackage{
 					Package: build.Package{
 						Dir:            "go",

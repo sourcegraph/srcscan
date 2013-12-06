@@ -74,6 +74,11 @@ var AllProfiles = []Profile{
 		Unit: readNodeJSPackage,
 	},
 	Profile{
+		Name: "Bower component",
+		Dir:  FileInDir{"bower.json"},
+		Unit: readBowerComponent,
+	},
+	Profile{
 		Name:         "Python package and module",
 		TopLevelOnly: true,
 		Dir:          FileInDir{"__init__.py"},

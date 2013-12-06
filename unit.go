@@ -124,6 +124,30 @@ func readNodeJSPackage(absdir, reldir string, config Config, info os.FileInfo) U
 	return u
 }
 
+// BowerComponent represents a node.js package.
+type BowerComponent struct {
+	Dir       string
+	BowerJSON json.RawMessage `json:",omitempty"`
+}
+
+// Path returns the directory containing the bower.json file.
+func (u *BowerComponent) Path() string {
+	return u.Dir
+}
+
+func readBowerComponent(absdir, reldir string, config Config, info os.FileInfo) Unit {
+	u := &BowerComponent{Dir: reldir}
+
+	// Read bower.json.
+	var err error
+	u.BowerJSON, err = ioutil.ReadFile(filepath.Join(absdir, "bower.json"))
+	if err != nil {
+		panic("read bower.json: " + err.Error())
+	}
+
+	return u
+}
+
 // GoPackage represents a Go package.
 type GoPackage struct {
 	build.Package
@@ -400,6 +424,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 	switch unitType {
 	case "NodeJSPackage":
 		unit = &NodeJSPackage{}
+	case "BowerComponent":
+		unit = &BowerComponent{}
 	case "GoPackage":
 		unit = &GoPackage{}
 	case "PythonPackage":
@@ -423,4 +449,4 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 
 // Compile-time interface implementation checks.
 
-var _, _, _, _, _, _ Unit = &NodeJSPackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}
+var _, _, _, _, _, _, _ Unit = &NodeJSPackage{}, &BowerComponent{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}
