@@ -80,16 +80,16 @@ func TestScan(t *testing.T) {
 					SrcFiles:         []string{"src/main/java/foo/Foo.java"},
 					TestFiles:        []string{"src/test/java/bar/Bar.java"},
 				},
-				&NodeJSPackage{
-					Dir:            "node.js",
+				&NPMPackage{
+					Dir:            "npm",
 					PackageJSON:    []byte(`{"name":"mypkg"}`),
 					LibFiles:       []string{"a.js", "lib/a.js"},
 					TestFiles:      []string{"a_test.js", "test/b.js", "test/c_test.js"},
 					VendorFiles:    []string{"example/bower_components/foo/foo.js", "vendor/a.js"},
 					GeneratedFiles: []string{"a.min.js", "dist/a.js"},
 				},
-				&NodeJSPackage{
-					Dir:         "node.js/subpkg",
+				&NPMPackage{
+					Dir:         "npm/subpkg",
 					PackageJSON: []byte(`{"name":"subpkg"}`),
 					LibFiles:    []string{"a.js"},
 				},

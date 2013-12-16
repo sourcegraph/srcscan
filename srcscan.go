@@ -24,9 +24,9 @@ type Config struct {
 	// possible, or else cleared.
 	PathIndependent bool
 
-	NodeJSPackage NodeJSPackageConfig
-	GoPackage     GoPackageConfig
-	Ruby          RubyConfig
+	NPMPackage NPMPackageConfig
+	GoPackage  GoPackageConfig
+	Ruby       RubyConfig
 }
 
 func (c Config) skipDir(name string) bool {
@@ -40,7 +40,7 @@ func (c Config) skipDir(name string) bool {
 
 var Default = Config{
 	SkipDirs: []string{"node_modules", "vendor", "testdata", "site-packages", "bower_components"},
-	NodeJSPackage: NodeJSPackageConfig{
+	NPMPackage: NPMPackageConfig{
 		TestDirs:          []string{"test", "tests", "spec", "specs", "unit", "mocha", "karma", "testdata"},
 		TestSuffixes:      []string{"test.js", "tests.js", "spec.js", "specs.js"},
 		SupportDirs:       []string{"build_support"},

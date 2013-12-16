@@ -33,8 +33,8 @@ func (u Units) Less(i, j int) bool {
 	return fmt.Sprintf("%T", u[i])+u[i].Path() < fmt.Sprintf("%T", u[j])+u[j].Path()
 }
 
-// NodeJSPackage represents a node.js package.
-type NodeJSPackage struct {
+// NPMPackage represents an NPM package.
+type NPMPackage struct {
 	Dir            string
 	PackageJSON    json.RawMessage `json:",omitempty"`
 	LibFiles       []string        `json:",omitempty"`
@@ -47,11 +47,11 @@ type NodeJSPackage struct {
 }
 
 // Path returns the directory containing the package.json file.
-func (u *NodeJSPackage) Path() string {
+func (u *NPMPackage) Path() string {
 	return u.Dir
 }
 
-type NodeJSPackageConfig struct {
+type NPMPackageConfig struct {
 	TestDirs          []string
 	TestSuffixes      []string
 	SupportDirs       []string
@@ -63,8 +63,8 @@ type NodeJSPackageConfig struct {
 	VendorDirs        []string
 }
 
-func readNodeJSPackage(absdir, reldir string, config Config, info os.FileInfo) Unit {
-	u := &NodeJSPackage{Dir: reldir}
+func readNPMPackage(absdir, reldir string, config Config, info os.FileInfo) Unit {
+	u := &NPMPackage{Dir: reldir}
 
 	// Read package.json.
 	var err error
@@ -74,7 +74,7 @@ func readNodeJSPackage(absdir, reldir string, config Config, info os.FileInfo) U
 	}
 
 	// Populate *Files fields.
-	c := config.NodeJSPackage
+	c := config.NPMPackage
 	err = filepath.Walk(absdir, func(path string, info os.FileInfo, inerr error) (err error) {
 		if info.Mode().IsRegular() && strings.HasSuffix(info.Name(), ".js") {
 			relpath, _ := filepath.Rel(absdir, path)
@@ -422,8 +422,8 @@ var _ json.Unmarshaler = &MarshalableUnit{}
 // UnmarshalJSON attempts to unmarshal JSON data into a new source unit struct of type unitType.
 func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 	switch unitType {
-	case "NodeJSPackage":
-		unit = &NodeJSPackage{}
+	case "NPMPackage":
+		unit = &NPMPackage{}
 	case "BowerComponent":
 		unit = &BowerComponent{}
 	case "GoPackage":
@@ -449,4 +449,4 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 
 // Compile-time interface implementation checks.
 
-var _, _, _, _, _, _, _ Unit = &NodeJSPackage{}, &BowerComponent{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}
+var _, _, _, _, _, _, _ Unit = &NPMPackage{}, &BowerComponent{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}

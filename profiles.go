@@ -69,9 +69,9 @@ func (c FileHasSuffix) FileMatches(path string) bool {
 
 var AllProfiles = []Profile{
 	Profile{
-		Name: "node.js package",
+		Name: "NPM package",
 		Dir:  FileInDir{"package.json"},
-		Unit: readNodeJSPackage,
+		Unit: readNPMPackage,
 	},
 	Profile{
 		Name: "Bower component",
