@@ -78,6 +78,7 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 
 	c.Base, _ = filepath.Abs(c.Base)
 
+	skipFiles := false
 	for _, profile := range profiles {
 		err = filepath.Walk(dir, func(path string, info os.FileInfo, inerr error) (err error) {
 			if inerr != nil {
@@ -107,9 +108,13 @@ func (c Config) Scan(dir string) (found []Unit, err error) {
 					if profile.TopLevelOnly {
 						return filepath.SkipDir
 					}
+					// skip trying to match the files if gems or apps are found
+					if profile.Name == "Ruby Gem" || profile.Name == "Ruby app" {
+						skipFiles = true
+					}
 				}
 			} else {
-				if profile.File != nil && profile.File.FileMatches(path) {
+				if !skipFiles && profile.File != nil && profile.File.FileMatches(path) {
 					relpath, abspath := c.relAbsPath(path)
 					found = append(found, profile.Unit(abspath, relpath, c, info))
 				}

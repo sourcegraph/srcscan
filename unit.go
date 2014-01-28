@@ -343,6 +343,15 @@ func readRubyApp(absdir, reldir string, config Config, info os.FileInfo) Unit {
 	return &app
 }
 
+// individual Ruby file (collected when there is no Gemfile)
+type RubyFile struct {
+	File string
+}
+
+func (u *RubyFile) Path() string {
+	return u.File
+}
+
 // JavaProject represents a Java project.
 type JavaProject struct {
 	Dir              string
@@ -436,6 +445,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 		unit = &RubyApp{}
 	case "RubyGem":
 		unit = &RubyGem{}
+	case "RubyFile":
+		unit = &RubyFile{}
 	case "JavaProject":
 		unit = &JavaProject{}
 	default:

@@ -111,5 +111,11 @@ var AllProfiles = []Profile{
 		Dir:  FileInDir{"config.ru"},
 		Unit: readRubyApp,
 	},
-	// TODO(sqs): support Ruby apps (i.e., non-gem Ruby projects)
+	Profile{
+		Name: "Ruby file",
+		File: FileHasSuffix{".rb"},
+		Unit: func(abspath, relpath string, config Config, info os.FileInfo) Unit {
+			return &RubyFile{relpath}
+		},
+	},
 }
