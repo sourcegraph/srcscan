@@ -233,25 +233,6 @@ Found:
         return u
 }
 
-// PythonPackage represents a Python package.
-type PythonPackage struct {
-        Dir string
-}
-
-// Path returns the directory immediately containing the Python package.
-func (u *PythonPackage) Path() string {
-        return u.Dir
-}
-
-// PythonPackage represents a Python package.
-type PythonModule struct {
-        File string
-}
-
-func (u *PythonModule) Path() string {
-        return u.File
-}
-
 type RubyConfig struct {
         TestDirs             []string
         TestFilenamePatterns []string
@@ -463,6 +444,8 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
                 unit = &NPMPackage{}
         case "BowerComponent":
                 unit = &BowerComponent{}
+        case "ClojurePackage":
+                unit = &ClojurePackage{}
         case "GoPackage":
                 unit = &GoPackage{}
         case "PythonPackage":
@@ -488,4 +471,4 @@ func UnmarshalJSON(data []byte, unitType string) (unit Unit, err error) {
 
 // Compile-time interface implementation checks.
 
-var _, _, _, _, _, _, _ Unit = &NPMPackage{}, &BowerComponent{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}
+var _, _, _, _, _, _, _, _ Unit = &NPMPackage{}, &BowerComponent{}, &ClojurePackage{}, &GoPackage{}, &PythonPackage{}, &PythonModule{}, &RubyGem{}, &JavaProject{}
